@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="om">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wal-Arga Community</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .container { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); width: 100%; max-width: 500px; margin-bottom: 20px; }
+        textarea, input { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background-color: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        button:hover { background-color: #0056b3; }
+        .post-list { width: 100%; max-width: 500px; }
+        .post-card { background: white; padding: 15px; margin-bottom: 10px; border-radius: 10px; box-shadow: 0 1px 5px rgba(0,0,0,0.1); border-left: 5px solid #007bff; }
+        .post-card h4 { margin: 0; color: #333; }
+        .post-card p { color: #555; margin: 10px 0; }
+        .post-card small { color: #888; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Wal-Arga 🚀</h2>
+        <input type="text" id="author" placeholder="Maqaa kee...">
+        <textarea id="content" rows="3" placeholder="Maal haaraa jiru?"></textarea>
+        <button onclick="sendPost()">Post Ergi</button>
+    </div>
+
+    <div class="post-list" id="postContainer">
+        </div>
+
+    <script>
+        // 1. Post hunda Database irraa fiduu
+        async function fetchPosts() {
+            const res = await fetch('/api/posts');
+            const posts = await res.json();
+            const container = document.getElementById('postContainer');
+            container.innerHTML = ''; // Qulqulleessuuf
+
+            posts.forEach(post => {
+                const postDiv = document.createElement('div');
+                postDiv.className = 'post-card';
+                postDiv.innerHTML = `
+                    <h4>${post.author}</h4>
+                    <p>${post.content}</p>
+                    <small>${new Date(post.createdAt).toLocaleString()}</small>
+                `;
+                container.appendChild(postDiv);
+            });
+        }
+
+        // 2. Post haaraa erguu
+        async function sendPost() {
+            const author = document.getElementById('author').value;
+            const content = document.getElementById('content').value;
+
+            if(!author || !content) return alert("Hunda guuti!");
+
+            await fetch('/api/posts', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ author, content })
+            });
+
+            document.getElementById('author').value = '';
+            document.getElementById('content').value = '';
+            fetchPosts(); // List-ii update gochuuf
+        }
+
+        // Weebsaayitiin yommuu banamu post fidi
+        fetchPosts();
+    </script>
+</body>
+</html>
